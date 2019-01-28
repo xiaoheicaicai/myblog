@@ -27,7 +27,7 @@
         }
 
         .copyright {
-            background: #111;
+            background: #f7f7f7;
             font-size: 13px;
             text-align: center;
             color: #555;
@@ -35,10 +35,12 @@
             padding-bottom: 14px;
             border-top: 3px solid #337ab7;
         }
-
+        .jumbotron{
+            	padding:0;
+        }
     </style>
 </head>
-<body onload="onload()">
+<body onload="onload()" id="top">
 {% include 'nav.html' %}
 {#<!-- 顶部导航 -->#}
 <div class="container">
@@ -56,6 +58,9 @@
         </div>
     </div>
 </div>
+    <ul class="nav navbar-nav navbar-right " style="padding-right: 20px">
+        <a href="#top" class="back-to-top navbar-fixed-bottom ">返回顶部</a>
+    </ul>
 <footer>
 {#    <!--底部内容-->#}
     {% include 'bottom.html' %}

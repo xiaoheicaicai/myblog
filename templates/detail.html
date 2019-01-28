@@ -52,6 +52,11 @@
         <h3>{{ object.title }}</h3>
         <p>作者：{{ object.author }} 日期：{{ object.pub_time }} 类别：<a
                 href="{% url 'category' article.category.id %}">{{ article.category }}</a></p>
+                <span>
+                    <small class="col align-self-end" style="color:gray">
+                      浏览量：{{ article.total_views }}
+                    </small>
+                </span>
         {{ object.content | safe }}
 {#        <!--过滤器safe能够让文章内容中的HTML标签生效-->#}
     </div>

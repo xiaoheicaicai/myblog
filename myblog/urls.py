@@ -15,14 +15,20 @@ Including another URLconf
 """
 
 import xadmin
-from django.urls import path
+from django.urls import path, include, re_path
+from django.views.static import serve
+
 from blog import views as blog_view
+from myblog import settings
 
 urlpatterns = [
     path("", blog_view.Index.as_view()),
     path('xadmin/', xadmin.site.urls),
     path('category/<int:category>', blog_view.CategoryList.as_view(), name='category'),
-    path('search/',blog_view.Search.as_view(),name='search'),
-    path('detail/<int:pk>',blog_view.ArticleDetail.as_view(),name='detail'),
-    path('comment/',blog_view.pub_comment,name='comment')
+    path('search/', blog_view.Search.as_view(), name='search'),
+    path('detail/<int:pk>', blog_view.ArticleDetail.as_view(), name='detail'),
+    path('comment/', blog_view.pub_comment, name='comment'),
+    path('ckeditor/', include('ckeditor_uploader.urls')),
+    path('upload/', blog_view.image_upload),
+    re_path(r'^media/(?P<path>.*)$', serve, {'document_root': settings.MEDIA_ROOT})
 ]

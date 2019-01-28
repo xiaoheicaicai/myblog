@@ -1,16 +1,17 @@
+from django.shortcuts import Http404
 from django.shortcuts import HttpResponse
+import time
 from django.views.generic import ListView, DetailView
 from .models import *
 from .forms import CommentForm
 from django.db.models import Q  # 帮助完成查询条件设置
-
+from django.views.decorators.csrf import csrf_exempt
 
 
 class Index(ListView):
     model = Article
     template_name = 'index.html'
-    queryset = Article.objects.all().order_by('-id')  # 获取到全部文章并按编号降序排列。
-    paginate_by = 5  # 设置分页时每页的文章数量
+
 
 
 class Search(ListView):
@@ -19,14 +20,15 @@ class Search(ListView):
     paginate_by = 5
 
     def get_queryset(self):
+
         key = self.request.GET['key']  # 获取查询关键字
         if key:
             return Article.objects.filter(Q(title__icontains=key) | Q(content__icontains=key)).order_by('-id')
             # 查询标题或者内容包含关键字的数据对象
         else:
             return None
-
     def get_context_data(self, **kwargs):
+
         context = super().get_context_data(**kwargs)
         context['key'] = self.request.GET['key']  # 获取关键字存入传入模板的数据中
         return context
@@ -90,6 +92,12 @@ class ArticleDetail(DetailView):
         else:  # 否则
             for kid in self.kids:  # 遍历回复评论
                 self.format_show(kid)  # 进行下一层递归
+        # 添加浏览量
+
+    def get_object(self, queryset=None):
+        article = super(ArticleDetail, self).get_object()
+        article.viewed()
+        return article
 
 
 def pub_comment(request):  # 发布评论函数
@@ -116,3 +124,21 @@ def pub_comment(request):  # 发布评论函数
         return HttpResponse('非法请求！')  # 返回提交结果到页面
 
 
+@csrf_exempt  # 装饰上传图片的视图函数
+def image_upload(request):  # 定义上传图片的视图函数
+    if request.method == 'POST':
+        callback = request.GET.get('CKEditorFuncNum')  # 获取客户端上传事件的标记
+        try:
+            path = "media/upload/" + time.strftime("%Y%m%d%H%M%S", time.localtime())
+            f = request.FILES["upload"]  # 获取上传文件的对象
+            file_name = path + "_" + f.name  # 组织文件存储路径与名称
+            with open(file_name, "wb+") as file:  # 创建文件
+                for chunk in f.chunks():  # 读取上传文件
+                    file.write(chunk)  # 写入文件
+        except Exception as e:
+            print(e)
+        res = "<script>window.parent.CKEDITOR.tools.callFunction(" + callback + ",'/" + file_name + "', '');</script>"
+        # 将上传文件的路径通过上传事件的标记写回浏览器客户端
+        return HttpResponse(res)  # 返回响应内容
+    else:
+        raise Http404()  # 抛出异常

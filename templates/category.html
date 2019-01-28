@@ -13,6 +13,11 @@
                 <p>作者：{{ article.author }} 日期：{{ article.pub_time }}</p>
                 <p>{{ article.content|truncatechars:200|striptags }}</p>
                 <a class="btn" href="{% url 'detail' article.id %}">进入阅读 »</a>
+
+                    <small class="col align-self-end" style="color:gray">
+                      浏览量：{{ article.total_views }}
+                    </small>
+
             </div>
         </div>
     {% endfor %}

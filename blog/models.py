@@ -38,13 +38,16 @@ class Article(models.Model):
     pub_time = models.DateField("日期", auto_now=True)
     category = models.ForeignKey(Category, on_delete=models.SET_DEFAULT, default=1, verbose_name="类别")
     tag = models.ManyToManyField(Tag, "标签")
-
+    total_views = models.PositiveIntegerField(default=0, verbose_name="浏览量")
     class Meta:
         verbose_name_plural = verbose_name = "文章"
 
     def __str__(self):
         return self.title
 
+    def viewed(self):
+        self.total_views += 1
+        self.save(update_fields=['total_views'])
 
 # 评论与回复
 class Comment(models.Model):
